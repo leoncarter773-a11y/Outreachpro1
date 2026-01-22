@@ -1,0 +1,8 @@
+{
+  "name": "OutreachPro",
+  "description": "The all-in-one outreach and CRM platform built exclusively for virtual assistants and VA agencies to automate client acquisition and manage lead pipelines.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
