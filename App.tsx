@@ -6,6 +6,7 @@ import { OnboardingView } from './views/Onboarding.tsx';
 import { DashboardView } from './views/Dashboard.tsx';
 import { LeadsView } from './views/Leads.tsx';
 import { OutreachView } from './views/Outreach.tsx';
+import { ReleasesView } from './views/Releases.tsx';
 import { Profile } from './types.ts';
 import { VoiceDictator } from './components/VoiceDictator.tsx';
 import { VoiceAssistant } from './components/VoiceAssistant.tsx';
@@ -38,6 +39,8 @@ const App: React.FC = () => {
         return <LeadsView profile={profile!} />;
       case 'outreach':
         return <OutreachView profile={profile!} />;
+      case 'releases':
+        return <ReleasesView />;
       case 'analytics':
         return (
           <div className="flex flex-col items-center justify-center h-[70vh] text-center p-10">

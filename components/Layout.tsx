@@ -12,7 +12,8 @@ import {
   X,
   Target,
   ShieldCheck,
-  CheckCircle
+  CheckCircle,
+  Github
 } from 'lucide-react';
 import { Profile } from '../types.ts';
 
@@ -53,6 +54,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView, onNavigate
     { id: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
     { id: 'leads', icon: <Target size={20} />, label: 'Leads' },
     { id: 'outreach', icon: <MessageSquare size={20} />, label: 'Outreach' },
+    { id: 'releases', icon: <Github size={20} />, label: 'Releases' },
     { id: 'analytics', icon: <BarChart3 size={20} />, label: 'Analytics' },
     { id: 'team', icon: <Users size={20} />, label: 'Team' },
     { id: 'settings', icon: <Settings size={20} />, label: 'Settings' },

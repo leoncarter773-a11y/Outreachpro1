@@ -2,7 +2,18 @@
 import { GoogleGenAI, Type, Modality, LiveServerMessage } from "@google/genai";
 
 // Audio helpers as per guidelines
-function encode(bytes: Uint8Array) {
+function encode(base64: string) {
+  let binary = '';
+  const bytes = new Uint8Array(new TextEncoder().encode(base64));
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+// Manual base64 encode for PCM data as required by guidelines
+function encodeBase64(bytes: Uint8Array) {
   let binary = '';
   const len = bytes.byteLength;
   for (let i = 0; i < len; i++) {
@@ -18,20 +29,18 @@ function createBlob(data: Float32Array): any {
     int16[i] = data[i] * 32768;
   }
   return {
-    data: encode(new Uint8Array(int16.buffer)),
+    data: encodeBase64(new Uint8Array(int16.buffer)),
     mimeType: 'audio/pcm;rate=16000',
   };
 }
 
 export class GeminiService {
-  ai: GoogleGenAI;
-
-  constructor() {
-    this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  }
+  // Always create a new GoogleGenAI instance right before making an API call 
+  // to ensure it uses the most up-to-date API key.
 
   async connectTranscription(onTranscript: (text: string, isFinal: boolean) => void) {
-    const sessionPromise = this.ai.live.connect({
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const sessionPromise = ai.live.connect({
       model: 'gemini-2.5-flash-native-audio-preview-12-2025',
       callbacks: {
         onopen: () => console.log('Transcription session opened'),
@@ -92,7 +101,8 @@ export class GeminiService {
   }
 
   async parseLeadFromVoice(transcript: string) {
-    const response = await this.ai.models.generateContent({
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Extract lead information from this transcript: "${transcript}"
       
@@ -121,7 +131,8 @@ export class GeminiService {
   }
 
   async refineText(text: string) {
-    const response = await this.ai.models.generateContent({
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Polish and professionally format this transcript. Fix grammar, remove filler words like 'um', and ensure it makes sense in a business context. Keep it concise.
       
@@ -134,14 +145,15 @@ export class GeminiService {
   }
 
   async interpretCommand(command: string) {
-    const response = await this.ai.models.generateContent({
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Interpret this user voice command for a VA Outreach app.
       Command: "${command}"
       
       Output intent in JSON. Supported actions:
-      - "navigate": target can be "dashboard", "leads", "outreach", "settings", "analytics", "team"
-      - "action": target can be "add_lead", "export_csv", "copy_emails"
+      - "navigate": target can be "dashboard", "leads", "outreach", "settings", "analytics", "team", "releases"
+      - "action": target can be "add_lead", "export_csv", "copy_emails", "create_release"
       - "search": target is the search query
       
       Example outputs:
@@ -165,8 +177,31 @@ export class GeminiService {
     return JSON.parse(response.text || '{}');
   }
 
+  async generateReleaseNotes(tag: string, leadCount: number, context: string) {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Generate professional GitHub-style release notes for a VA outreach campaign.
+      Tag: ${tag}
+      Leads Added: ${leadCount}
+      Context: ${context}
+      
+      Include sections for:
+      ## New Leads Acquired
+      ## Outreach Strategy Updates
+      ## Conversion Milestones
+      
+      Keep it professional and data-driven.`,
+      config: {
+        responseMimeType: "text/plain"
+      },
+    });
+    return response.text;
+  }
+
   async generateBrandVoice(serviceType: string, targetClient: string) {
-    const response = await this.ai.models.generateContent({
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Act as a Brand Strategist. Service: ${serviceType}, Target: ${targetClient}. Create identity.`,
       config: {
@@ -186,7 +221,8 @@ export class GeminiService {
   }
 
   async generateOutreachSequence(serviceType: string, targetClient: string, goal: string) {
-    const response = await this.ai.models.generateContent({
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Create a 3-step outreach sequence for ${serviceType} targeting ${targetClient}. Goal: ${goal}.`,
       config: {
@@ -209,7 +245,8 @@ export class GeminiService {
   }
 
   async analyzeLeadQuality(leadDescription: string) {
-    const response = await this.ai.models.generateContent({
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Analyze lead: "${leadDescription}". Score 1-10.`,
       config: {

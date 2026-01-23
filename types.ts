@@ -45,6 +45,17 @@ export interface OutreachStep {
   content: string;
 }
 
+export interface CampaignRelease {
+  id: string;
+  tag: string;
+  name: string;
+  notes: string;
+  createdAt: string;
+  leadCount: number;
+  sequenceCount: number;
+  githubUrl?: string;
+}
+
 export interface Agency {
   id: string;
   name: string;
