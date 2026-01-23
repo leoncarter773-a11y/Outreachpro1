@@ -139,9 +139,16 @@ export class GeminiService {
       contents: `Interpret this user voice command for a VA Outreach app.
       Command: "${command}"
       
-      Output one of these intents in JSON:
-      1. { "action": "navigate", "target": "dashboard" | "leads" | "outreach" | "settings" | "analytics" | "team" }
-      2. { "action": "unknown", "message": "I didn't understand that command." }`,
+      Output intent in JSON. Supported actions:
+      - "navigate": target can be "dashboard", "leads", "outreach", "settings", "analytics", "team"
+      - "action": target can be "add_lead", "export_csv", "copy_emails"
+      - "search": target is the search query
+      
+      Example outputs:
+      { "action": "navigate", "target": "leads" }
+      { "action": "action", "target": "add_lead" }
+      { "action": "search", "target": "John Doe" }
+      { "action": "unknown", "message": "I didn't understand that." }`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -159,16 +166,9 @@ export class GeminiService {
   }
 
   async generateBrandVoice(serviceType: string, targetClient: string) {
-    const prompt = `Act as a high-end Brand Strategist for Virtual Assistants.
-    User Service: ${serviceType}
-    Target Market: ${targetClient}
-    
-    Task: Create a "Business Identity Activation" profile.
-    Output: Must be valid JSON object.`;
-
     const response = await this.ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: prompt,
+      contents: `Act as a Brand Strategist. Service: ${serviceType}, Target: ${targetClient}. Create identity.`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -182,19 +182,13 @@ export class GeminiService {
         },
       },
     });
-
-    try {
-      return JSON.parse(response.text || '{}');
-    } catch (e) {
-      return null;
-    }
+    return JSON.parse(response.text || '{}');
   }
 
   async generateOutreachSequence(serviceType: string, targetClient: string, goal: string) {
-    const prompt = `Create a 3-step outreach sequence for ${serviceType} targeting ${targetClient}. Goal: ${goal}. JSON output.`;
     const response = await this.ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: prompt,
+      contents: `Create a 3-step outreach sequence for ${serviceType} targeting ${targetClient}. Goal: ${goal}.`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -217,7 +211,7 @@ export class GeminiService {
   async analyzeLeadQuality(leadDescription: string) {
     const response = await this.ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Analyze lead: "${leadDescription}". Score 1-10. advice.`,
+      contents: `Analyze lead: "${leadDescription}". Score 1-10.`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {

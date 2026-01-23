@@ -12,15 +12,24 @@ export interface Profile {
   serviceType: string;
 }
 
+export interface Reminder {
+  id: string;
+  text: string;
+  date: string;
+  completed: boolean;
+}
+
 export interface Lead {
   id: string;
   name: string;
   email: string;
-  status: 'new' | 'contacted' | 'negotiating' | 'closed' | 'lost';
-  source: string;
-  assignedTo?: string;
+  company: string;
+  status: 'new' | 'contacted' | 'meeting' | 'closed';
+  tags: string[];
+  desc: string;
+  reminders?: Reminder[];
   lastContactDate?: string;
-  notes?: string;
+  assignedTo?: string;
 }
 
 export interface OutreachSequence {

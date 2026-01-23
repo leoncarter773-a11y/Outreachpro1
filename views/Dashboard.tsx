@@ -13,7 +13,9 @@ import {
   Copy,
   Check,
   Download,
-  Loader2
+  Loader2,
+  Clock,
+  CheckCircle2
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -171,8 +173,9 @@ export const DashboardView = ({ profile }: { profile: Profile }) => {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Retention / Performance Chart */}
+        <div className="lg:col-span-8 bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-xl font-black tracking-tight">Acquisition Velocity</h2>
             <select className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold uppercase tracking-widest outline-none text-slate-600 focus:ring-2 focus:ring-indigo-500/20 transition-all">
@@ -202,45 +205,70 @@ export const DashboardView = ({ profile }: { profile: Profile }) => {
           </div>
         </div>
 
-        <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex flex-col">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl font-black tracking-tight">Recent Prospects</h2>
-            <button className="text-indigo-600 text-xs font-black uppercase tracking-widest hover:underline">View All Pipeline</button>
-          </div>
-          <div className="space-y-4 flex-1">
-            {[
-              { name: 'Alex Rivera', company: 'Nexus Digital', status: 'New', time: '2m ago' },
-              { name: 'Sarah Chen', company: 'BrightFlow AI', status: 'Contacted', time: '15m ago' },
-              { name: 'Mark Thompson', company: 'Global Logistics', status: 'New', time: '1h ago' },
-              { name: 'Elena Gilbert', company: 'Startup Studio', status: 'Negotiating', time: '3h ago' },
-              { name: 'Jordan Hayes', company: 'Hayes Creative', status: 'New', time: '5h ago' },
-            ].map((lead, i) => (
-              <div key={i} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-all group cursor-pointer border border-transparent hover:border-slate-100">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-slate-100 rounded-[14px] flex items-center justify-center font-black text-slate-500 group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                    {lead.name[0]}
+        {/* Reminders / Tasks Sidebar */}
+        <div className="lg:col-span-4 space-y-6">
+           <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex flex-col h-full">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-xl font-black tracking-tight flex items-center gap-2">
+                 <Clock className="text-indigo-600" size={20} /> Today's Tasks
+              </h2>
+            </div>
+            <div className="space-y-4 flex-1">
+              {[
+                { title: 'Follow up with Alex', time: '10:00 AM', completed: false },
+                { title: 'Send proposal to Sarah', time: '11:30 AM', completed: true },
+                { title: 'Prep for meeting with Mark', time: '2:00 PM', completed: false },
+                { title: 'Analyze LinkedIn leads', time: '4:00 PM', completed: false },
+              ].map((task, i) => (
+                <div key={i} className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${task.completed ? 'bg-slate-50 border-transparent opacity-60' : 'bg-white border-slate-100 hover:border-indigo-100 shadow-sm'}`}>
+                  <div className={`shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${task.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-200'}`}>
+                    {task.completed && <CheckCircle2 size={12} />}
                   </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900">{lead.name}</h4>
-                    <p className="text-xs text-slate-500 font-medium">{lead.company}</p>
+                  <div className="min-w-0">
+                    <h4 className={`text-sm font-bold truncate ${task.completed ? 'line-through text-slate-400' : 'text-slate-900'}`}>{task.title}</h4>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{task.time}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-6">
-                  <span className={`text-[9px] uppercase tracking-[0.1em] font-black px-3 py-1 rounded-full ${
-                    lead.status === 'New' ? 'bg-indigo-50 text-indigo-600' : 
-                    lead.status === 'Contacted' ? 'bg-purple-50 text-purple-600' : 
-                    'bg-amber-50 text-amber-600'
-                  }`}>
-                    {lead.status}
-                  </span>
-                  <div className="flex flex-col items-end gap-1">
-                    <span className="text-[10px] text-slate-400 font-bold">{lead.time}</span>
-                    <ChevronRight size={14} className="text-slate-300 group-hover:text-slate-600 transition-colors" />
-                  </div>
+              ))}
+            </div>
+            <button className="w-full mt-6 py-3 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all">
+               View Full Schedule
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex flex-col">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-xl font-black tracking-tight">Recent Prospects</h2>
+          <button className="text-indigo-600 text-xs font-black uppercase tracking-widest hover:underline">View All Pipeline</button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[
+            { name: 'Alex Rivera', company: 'Nexus Digital', status: 'New', time: '2m ago' },
+            { name: 'Sarah Chen', company: 'BrightFlow AI', status: 'Contacted', time: '15m ago' },
+            { name: 'Mark Thompson', company: 'Global Logistics', status: 'New', time: '1h ago' },
+          ].map((lead, i) => (
+            <div key={i} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-all group cursor-pointer border border-transparent hover:border-slate-100">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-slate-100 rounded-[14px] flex items-center justify-center font-black text-slate-500 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                  {lead.name[0]}
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-900">{lead.name}</h4>
+                  <p className="text-xs text-slate-500 font-medium">{lead.company}</p>
                 </div>
               </div>
-            ))}
-          </div>
+              <div className="flex flex-col items-end gap-1">
+                <span className={`text-[9px] uppercase tracking-[0.1em] font-black px-3 py-1 rounded-full ${
+                  lead.status === 'New' ? 'bg-indigo-50 text-indigo-600' : 'bg-purple-50 text-purple-600'
+                }`}>
+                  {lead.status}
+                </span>
+                <span className="text-[10px] text-slate-400 font-bold">{lead.time}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
